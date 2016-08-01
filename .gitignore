@@ -1,0 +1,6 @@
+/doc/
+/libs/
+/.crystal/
+/.shards/
+.DS_Store
+shard.lock
