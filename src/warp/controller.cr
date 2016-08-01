@@ -6,7 +6,7 @@ module Warp
     def self.run(port = 8080)
       server = HTTP::Server.new(port, [
         HTTP::ErrorHandler.new,
-        Warp::StaticFileHandler.new("./public/", true),
+        Warp::StaticFileHandler.new("./public/"),
         Warp::Handler.new(self),
       ])
 
@@ -35,7 +35,6 @@ module Warp
       time = Time.now
 
       begin
-        pp context.response.status_code
         call
       rescue ex
         status 500
@@ -46,8 +45,6 @@ module Warp
         end
         return
       end
-
-      pp context.response.status_code
 
       if (context.response.status_code >= 400) && (context.response.status_code < 600)
         if json?
