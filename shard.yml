@@ -1,0 +1,12 @@
+name: warp
+version: 0.1.1
+
+dependencies:
+  toro:
+    github: soveran/toro
+    branch: master
+
+authors:
+  - raydf <raydf@perspectiva.io>
+
+license: MIT
