@@ -6,7 +6,7 @@ module Warp
     def self.run(port = 8080)
       server = HTTP::Server.new(port, [
         HTTP::ErrorHandler.new,
-        Warp::StaticFileHandler.new("./public/"),
+        Warp::StaticFileHandler.new("./public/", true),
         Warp::Handler.new(self),
       ])
 
@@ -30,17 +30,12 @@ module Warp
       write {{template}}.to_s
     end
 
-    # Overriding call without segment
-    def self.call(context : HTTP::Server::Context)
-      new(context).main_call
-    end
-
-
     # Wrapping the first call with default error handling
     def main_call
       time = Time.now
 
       begin
+        pp context.response.status_code
         call
       rescue ex
         status 500
@@ -51,6 +46,8 @@ module Warp
         end
         return
       end
+
+      pp context.response.status_code
 
       if (context.response.status_code >= 400) && (context.response.status_code < 600)
         if json?
