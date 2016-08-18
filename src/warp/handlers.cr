@@ -4,7 +4,6 @@ module Warp
     end
 
     def call(context)
-      pp context.request.path
       @controller.new(context).main_call
     end
   end
