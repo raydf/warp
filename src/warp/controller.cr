@@ -3,6 +3,7 @@ require "./handlers"
 module Warp
 
   abstract class Controller < Toro::Router
+
     def self.run(port = 8080)
       server = HTTP::Server.new(port, [
         HTTP::ErrorHandler.new,
@@ -25,11 +26,6 @@ module Warp
       context.try &.request.headers.includes_word?("Accept", "json")
     end
 
-    macro render(template)
-      header "Content-Type", "text/html"
-      write {{template}}.to_s
-    end
-
     # Wrapping the first call with default error handling
     def main_call
       time = Time.now
@@ -46,7 +42,7 @@ module Warp
         return
       end
 
-      if (context.response.status_code >= 400) && (context.response.status_code < 600)
+      if (context.response.status_code >= 400) && (context.response.status_code < 600) && (!context.response_end)
         if json?
           json({error: context.response.status_code})
         else
@@ -59,19 +55,31 @@ module Warp
       # pp "#{time} #{context.response.status_code} #{context.request.method} #{context.request.resource} - #{elapsed_text}\n"
     end
 
-    private def elapsed_text(elapsed)
-      minutes = elapsed.total_minutes
-      return "#{minutes.round(2)}m" if minutes >= 1
-
-      seconds = elapsed.total_seconds
-      return "#{seconds.round(2)}s" if seconds >= 1
-
-      millis = elapsed.total_milliseconds
-      return "#{millis.round(2)}ms" if millis >= 1
-
-      "#{(millis * 1000).round(2)}µs"
+        macro render(template)
+      header "Content-Type", "text/html"
+      write {{template}}.to_s
     end
+
+    macro render(template)
+      header "Content-Type", "text/html"
+      write {{template}}.to_s
+    end
+
+
+    # private def elapsed_text(elapsed)
+    #   minutes = elapsed.total_minutes
+    #   return "#{minutes.round(2)}m" if minutes >= 1
+
+    #   seconds = elapsed.total_seconds
+    #   return "#{seconds.round(2)}s" if seconds >= 1
+
+    #   millis = elapsed.total_milliseconds
+    #   return "#{millis.round(2)}ms" if millis >= 1
+
+    #   "#{(millis * 1000).round(2)}µs"
+    # end
 
     abstract def routes
   end
 end
+
