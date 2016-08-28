@@ -17,7 +17,7 @@ module Warp
   class Sessions
     NAME = "SessionId"
 
-    TTL = 1.minutes
+    TTL = 15.minutes
 
     # In-memory, ephemeral datastore only.
     #
@@ -106,8 +106,7 @@ module Warp
       spawn do
         loop do
           prune!
-          p "pruning"
-          sleep 60
+          sleep 300
         end
       end
     end

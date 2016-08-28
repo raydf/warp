@@ -1,4 +1,5 @@
 require "toro"
+require "json"
 require "./warp/context"
 require "./warp/session"
 require "./warp/validation_messages"

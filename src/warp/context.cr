@@ -1,14 +1,11 @@
 class HTTP::Server
   class Context
-    @response_end : (Bool | Nil) = nil
+    property response_end : Bool = false
 
     def session
       @session ||= Warp::Sessions.new(self)
       @session.not_nil!
     end
 
-    def response_end
-      @response_end = true
-    end
   end
 end

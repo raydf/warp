@@ -1,9 +1,7 @@
 require "./handlers"
 
 module Warp
-
   abstract class Controller < Toro::Router
-
     def self.run(port = 8080)
       server = HTTP::Server.new(port, [
         HTTP::ErrorHandler.new,
@@ -55,15 +53,16 @@ module Warp
       # pp "#{time} #{context.response.status_code} #{context.request.method} #{context.request.resource} - #{elapsed_text}\n"
     end
 
-        macro render(template)
-      header "Content-Type", "text/html"
-      write {{template}}.to_s
-    end
+    property outbox = {} of Symbol => JSON::Type
 
     macro render(template)
       header "Content-Type", "text/html"
-      write {{template}}.to_s
+      view = {{template}}
+      view.outbox = @outbox
+      view.render()
+      write view.to_s
     end
+
 
 
     # private def elapsed_text(elapsed)
@@ -82,4 +81,3 @@ module Warp
     abstract def routes
   end
 end
-

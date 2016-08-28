@@ -1,6 +1,6 @@
 module Warp
   class Handler < HTTP::Handler
-    def initialize (@controller : Warp::Controller.class)
+    def initialize(@controller : Warp::Controller.class)
     end
 
     def call(context)

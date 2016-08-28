@@ -1,6 +1,7 @@
 module Warp
   abstract class View
-
+    property outbox = {} of Symbol => JSON::Type 
+    
     @content = String::Builder.new
 
     def to_s
@@ -50,5 +51,6 @@ module Warp
     tag {{html_tag.id}}
     {% end %}
 
+    abstract def render
   end
 end
