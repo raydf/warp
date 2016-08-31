@@ -2,20 +2,20 @@ module Warp::Validation
   # Validations
 
   @validations = {} of String => Array(String)
-  @params = HTTP::Params.new({} of String => Array(String))
+  @params_values : HTTP::Params | Nil = HTTP::Params.new({} of String => Array(String))
 
   def valid?
     return @validations.size <= 0
   end
 
-  def validations(@params, &block)
+  def validations(@params_values, &block)
     @validations = {} of String => Array(String)
     yield
     return @validations, valid?
   end
 
   def required(field = "", kind : T = String, &block)
-    predicate = Predicate.new(@params, field, kind)
+    predicate = Predicate.new(@params_values, field, kind)
     yield predicate
     @validations.merge! predicate.validations
     @validations.each do |key, value|
@@ -25,13 +25,13 @@ module Warp::Validation
 
   class Predicate
     property validations = {} of String => Array(String)
-    getter params = HTTP::Params.new({} of String => Array(String))
+    getter params : HTTP::Params | Nil = HTTP::Params.new({} of String => Array(String))
     property valid = true
     @value = ""
 
     def initialize(@params, @field = "", @field_name = "", @kind : T = String)
       validations[@field] = [] of String
-      @value = params[field]?.try &.[0]?.try &.to_s || ""
+      @value = params.try &.[field]?.try &.[0]?.try &.to_s || ""
     end
 
     def filled?

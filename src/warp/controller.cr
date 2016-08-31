@@ -2,6 +2,9 @@ require "./handlers"
 
 module Warp
   abstract class Controller < Toro::Router
+    property outbox = {} of Symbol => Warp::Type
+    property params = Params.new
+    
     def self.run(port = 8080)
       server = HTTP::Server.new(port, [
         HTTP::ErrorHandler.new,
@@ -35,7 +38,9 @@ module Warp
         if json?
           json({error: ex.message})
         else
-          render Warp::Web::View::Error.new(context.response.status_code, ex.message)
+          outbox[:status_code] = context.response.status_code
+          outbox[:exception_message] = ex.message
+          render Warp::Web::View::Error
         end
         return
       end
@@ -44,7 +49,8 @@ module Warp
         if json?
           json({error: context.response.status_code})
         else
-          render Warp::Web::View::Error.new(context.response.status_code)
+          outbox[:status_code] = context.response.status_code
+          render Warp::Web::View::Error
         end
       end
 
@@ -53,31 +59,31 @@ module Warp
       # pp "#{time} #{context.response.status_code} #{context.request.method} #{context.request.resource} - #{elapsed_text}\n"
     end
 
-    property outbox = {} of Symbol => JSON::Type
-
     macro render(template)
       header "Content-Type", "text/html"
-      view = {{template}}
-      view.outbox = @outbox
+      view = {{template}}.new(@outbox, Warp::View::Params.new(@params.query, @params.form)) # (inbox[:process_kind]? || "")
+      # view.outbox = @outbox
       view.render()
       write view.to_s
     end
 
 
-
-    # private def elapsed_text(elapsed)
-    #   minutes = elapsed.total_minutes
-    #   return "#{minutes.round(2)}m" if minutes >= 1
-
-    #   seconds = elapsed.total_seconds
-    #   return "#{seconds.round(2)}s" if seconds >= 1
-
-    #   millis = elapsed.total_milliseconds
-    #   return "#{millis.round(2)}ms" if millis >= 1
-
-    #   "#{(millis * 1000).round(2)}µs"
-    # end
-
     abstract def routes
+
+    def get(&block)
+      @params.query = HTTP::Params.parse(context.request.query || "")
+      root { status 200; yield } if get?
+    end
+
+    def post(&block)
+      @params.form = HTTP::Params.parse(context.request.body || "")
+      root { status 200; yield } if post?
+    end
+
+    class Params
+      property query = HTTP::Params.new({} of String => Array(String))
+      property form = HTTP::Params.new({} of String => Array(String))
+    end
   end
+
 end

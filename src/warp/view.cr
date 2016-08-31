@@ -1,6 +1,7 @@
 module Warp
   abstract class View
-    property outbox = {} of Symbol => JSON::Type 
+    getter outbox = {} of Symbol => Warp::Type 
+    getter params = Params.new(HTTP::Params.new({} of String => Array(String)), HTTP::Params.new({} of String => Array(String)))
     
     @content = String::Builder.new
 
@@ -8,11 +9,12 @@ module Warp
       @content.to_s
     end
 
-    macro attributes(list)
-      %key_value = {{list}}.map do |key, value|
-        "#{key}=\"#{value}\""
-      end
-      %key_value.join " "
+    def attributes_to_s(attributes = {} of Symbol => String)
+      attributes.map {|key, value| "#{key}=\"#{value}\"" }.join " "
+      # %key_value = {{list}}.map do |key, value|
+      #   "#{key}=\"#{value}\""
+      # end
+      # %key_value.join " "
     end
 
     macro legalize_tag(name)
@@ -24,13 +26,13 @@ module Warp
         @content << "<#{ legalize_tag {{name.id}} } />"
       end
       def {{name}}(attrs : Hash)
-        @content << "<#{ legalize_tag {{name.id}} } #{attributes attrs} />"
+        @content << "<#{ legalize_tag {{name.id}} } #{attributes_to_s attrs} />"
       end
-      def {{name}}(content : String|Int)
+      def {{name}}(content : Type)
         @content << "<#{ legalize_tag {{name.id}} }>#{content}</#{ legalize_tag {{name.id}} }>"
       end
-      def {{name}}(attrs : Hash, content : String|Int)
-        @content << "<#{ legalize_tag {{name.id}} }  #{attributes attrs} >#{content}</#{ legalize_tag {{name.id}} }>"
+      def {{name}}(attrs : Hash, content : Type)
+        @content << "<#{ legalize_tag {{name.id}} }  #{attributes_to_s attrs} >#{content}</#{ legalize_tag {{name.id}} }>"
       end
 
       # Block Based DSL
@@ -40,7 +42,7 @@ module Warp
         @content << "</#{ legalize_tag {{name.id}} }>"
       end
       def {{name}}(attrs : Hash, &block)
-        @content << "<#{ legalize_tag {{name.id}} } #{attributes attrs}>"
+        @content << "<#{ legalize_tag {{name.id}} } #{attributes_to_s attrs}>"
         yield
         @content << "</#{ legalize_tag {{name.id}} }>"
       end
@@ -51,6 +53,33 @@ module Warp
     tag {{html_tag.id}}
     {% end %}
 
+    def initialize(@outbox, @params) 
+    end
+
     abstract def render
+
+    class Params
+      getter query = HTTP::Params.new({} of String => Array(String))
+      getter form = HTTP::Params.new({} of String => Array(String))
+
+      def initialize(@query, @form)
+      end
+    end
+  end
+
+  module View::Form::Helper
+
+    def text_field_tag(name = "", value = "", placeholder = "", attributes = {} of Symbol => String)
+      value = params.query[name]? || params.form[name]? || value
+      attributes.merge!({:name => name, :id => (name.gsub /\./, "_"), :placeholder => placeholder, :type => "text", :value => value })
+      input(attributes)
+    end
+
+    def hidden_field_tag(name = "", value = "", attributes = {} of Symbol => String)
+      value = params.query[name]? || params.form[name]? || value
+      attributes.merge!({:name => name, :id => (name.gsub /\./, "_"), :type => "hidden", :value => value })
+      input(attributes)
+    end
+
   end
 end
