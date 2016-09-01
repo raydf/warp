@@ -81,5 +81,18 @@ module Warp
       input(attributes)
     end
 
+    def select_field_tag(name = "", value="", data : Warp::Type = [] of Tuple(String, String), attributes = {} of Symbol => String)
+      data_array = data.try &.as?(Array(Tuple(String, String))) || [] of Tuple(String, String)
+      value = params.query[name]? || params.form[name]? || value
+      attributes.merge!({:name => name, :id => (name.gsub /\./, "_") })
+      select(attributes) do
+        data_array.each do |option_data|
+          option_attributes = {:value => option_data[0]}
+          option_attributes.merge!({:selected => "true"}) if (option_data[0] == value)
+          option(option_attributes, option_data[1])  
+        end
+      end
+    end
+
   end
 end

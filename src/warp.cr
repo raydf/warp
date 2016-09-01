@@ -11,5 +11,5 @@ require "./warp/view"
 require "./warp/views/error"
 
 module Warp
-  alias Type =  JSON::Type | Int32 | Float32 | HTTP::Params
+  alias Type =  JSON::Type | Int32 | Float32 | Array(Tuple(String, String))
 end
