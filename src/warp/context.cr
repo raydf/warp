@@ -6,6 +6,5 @@ class HTTP::Server
       @session ||= Warp::Sessions.new(self)
       @session.not_nil!
     end
-
   end
 end

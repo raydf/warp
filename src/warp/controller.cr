@@ -4,7 +4,7 @@ module Warp
   abstract class Controller < Toro::Router
     property outbox = {} of Symbol => Warp::Type
     property params = Params.new
-    
+
     def self.run(port = 8080)
       server = HTTP::Server.new(port, [
         HTTP::ErrorHandler.new,
@@ -67,7 +67,6 @@ module Warp
       write view.to_s
     end
 
-
     abstract def routes
 
     def get(&block)
@@ -85,5 +84,4 @@ module Warp
       property form = HTTP::Params.new({} of String => Array(String))
     end
   end
-
 end

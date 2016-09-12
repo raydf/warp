@@ -1,8 +1,7 @@
 module Warp
   abstract class View
-    getter outbox = {} of Symbol => Warp::Type 
+    getter outbox = {} of Symbol => Warp::Type
     getter params = Params.new(HTTP::Params.new({} of String => Array(String)), HTTP::Params.new({} of String => Array(String)))
-    
     @content = String::Builder.new
 
     def to_s
@@ -10,7 +9,7 @@ module Warp
     end
 
     def attributes_to_s(attributes = {} of Symbol => String)
-      attributes.map {|key, value| "#{key}=\"#{value}\"" }.join " "
+      attributes.map { |key, value| "#{key}=\"#{value}\"" }.join " "
       # %key_value = {{list}}.map do |key, value|
       #   "#{key}=\"#{value}\""
       # end
@@ -49,11 +48,40 @@ module Warp
 
     end
 
-    {% for html_tag in %w(a abbr address area article aside audio b base bdi bdo blockquote body br button canvas caption cite code col colgroup command datalist dd del details dfn div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup hr html i iframe img input ins kbd keygen label legend li link map mark menu meta meter nav noscript object ol optgroup option output p param pre progress q rp rt ruby s samp script section select small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr) %}
+    {% for html_tag in %w(a abbr address area article aside audio b base bdi bdo blockquote body br button canvas caption cite code col colgroup command datalist dd del details dfn div dl dt em embed fieldset figcaption figure footer form h1 h2 h3 h4 h5 h6 head header hgroup hr html i iframe img input ins kbd keygen label legend li link map mark menu meta meter nav noscript object ol optgroup option output p param pre progress q rp rt ruby s samp script section small source span strong style sub summary sup table tbody td textarea tfoot th thead time title tr track u ul var video wbr) %}
     tag {{html_tag.id}}
     {% end %}
 
-    def initialize(@outbox, @params) 
+    def select!
+      @content << "<select/>"
+    end
+
+    def select!(attrs : Hash)
+      @content << "<select #{attributes_to_s attrs} />"
+    end
+
+    def select!(content : Type)
+      @content << "<select>#{content}</select>"
+    end
+
+    def select!(attrs : Hash, content : Type)
+      @content << "<select #{attributes_to_s attrs} >#{content}</select>"
+    end
+
+    # Block Based DSL
+    def select!(&block)
+      @content << "<select>"
+      yield
+      @content << "</select>"
+    end
+
+    def select!(attrs : Hash, &block)
+      @content << "<select #{attributes_to_s attrs}>"
+      yield
+      @content << "</select>"
+    end
+
+    def initialize(@outbox, @params)
     end
 
     abstract def render
@@ -68,31 +96,29 @@ module Warp
   end
 
   module View::Form::Helper
-
     def text_field_tag(name = "", value = "", placeholder = "", attributes = {} of Symbol => String)
       value = params.query[name]? || params.form[name]? || value
-      attributes.merge!({:name => name, :id => (name.gsub /\./, "_"), :placeholder => placeholder, :type => "text", :value => value })
+      attributes.merge!({:name => name, :id => (name.gsub /\./, "_"), :placeholder => placeholder, :type => "text", :value => value})
       input(attributes)
     end
 
     def hidden_field_tag(name = "", value = "", attributes = {} of Symbol => String)
       value = params.query[name]? || params.form[name]? || value
-      attributes.merge!({:name => name, :id => (name.gsub /\./, "_"), :type => "hidden", :value => value })
+      attributes.merge!({:name => name, :id => (name.gsub /\./, "_"), :type => "hidden", :value => value})
       input(attributes)
     end
 
-    def select_field_tag(name = "", value="", data : Warp::Type = [] of Tuple(String, String), attributes = {} of Symbol => String)
+    def select_field_tag(name = "", value = "", data : Warp::Type = [] of Tuple(String, String), attributes = {} of Symbol => String)
       data_array = data.try &.as?(Array(Tuple(String, String))) || [] of Tuple(String, String)
       value = params.query[name]? || params.form[name]? || value
-      attributes.merge!({:name => name, :id => (name.gsub /\./, "_") })
-      select(attributes) do
+      attributes.merge!({:name => name, :id => (name.gsub /\./, "_")})
+      select!(attributes) do
         data_array.each do |option_data|
           option_attributes = {:value => option_data[0]}
           option_attributes.merge!({:selected => "true"}) if (option_data[0] == value)
-          option(option_attributes, option_data[1])  
+          option(option_attributes, option_data[1])
         end
       end
     end
-
   end
 end

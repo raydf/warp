@@ -3,7 +3,6 @@ module Warp::Web::View
   class Error < Warp::View
     # def initialize(@code = 500, @message : String | Nil = "")
     # end
-    
     def render
       html do
         head do
