@@ -6,11 +6,11 @@ module Warp::Web::View
     def render
       html do
         head do
-          title("Error #{inbox[:status_code]}")
+          title("Error #{outbox[:status_code]}")
         end
         body do
-          div inbox[:status_code]?
-          div inbox[:exception_message]?
+          div outbox[:status_code]?
+          div outbox[:exception_message]?
         end
       end
     end
