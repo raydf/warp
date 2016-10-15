@@ -38,9 +38,10 @@ module Warp
         if json?
           json({error: ex.message})
         else
-          outbox[:status_code] = context.response.status_code
-          outbox[:exception_message] = ex.message
-          render Warp::Web::View::Error
+          render Warp::Web::View::Error, {
+            :status_code => context.response.status_code,
+            :exception_message => ex.message
+          }
         end
         return
       end
@@ -49,8 +50,10 @@ module Warp
         if json?
           json({error: context.response.status_code})
         else
-          outbox[:status_code] = context.response.status_code
-          render Warp::Web::View::Error
+          # props[:status_code] = context.response.status_code
+          render Warp::Web::View::Error, {
+            :status_code => context.response.status_code
+          }
         end
       end
 
@@ -59,9 +62,10 @@ module Warp
       # pp "#{time} #{context.response.status_code} #{context.request.method} #{context.request.resource} - #{elapsed_text}\n"
     end
 
-    macro render(template)
+    macro render(template, outbox)
       header "Content-Type", "text/html"
-      view = {{template}}.new(@outbox, Warp::View::Params.new(@params.query, @params.form)) # (inbox[:process_kind]? || "")
+      # view = {{template}}.new({{outbox}}, Warp::View::Params.new(@params.query, @params.form)) # (inbox[:process_kind]? || "")
+      view = {{template}}.new({{outbox}}) # (inbox[:process_kind]? || "")
       # view.outbox = @outbox
       view.render()
       write view.to_s

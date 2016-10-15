@@ -1,7 +1,7 @@
 module Warp
-  abstract class View
-    getter outbox = {} of Symbol => Warp::Type
-    getter params = Params.new(HTTP::Params.new({} of String => Array(String)), HTTP::Params.new({} of String => Array(String)))
+  abstract class View(T)
+    getter props : Hash(Symbol, T)
+    # getter params = Params.new(HTTP::Params.new({} of String => Array(String)), HTTP::Params.new({} of String => Array(String)))
     @content = String::Builder.new
 
     def to_s
@@ -81,36 +81,36 @@ module Warp
       @content << "</select>"
     end
 
-    def initialize(@outbox, @params)
+    def initialize(@props : Hash(Symbol, T))
     end
 
     abstract def render
 
-    class Params
-      getter query = HTTP::Params.new({} of String => Array(String))
-      getter form = HTTP::Params.new({} of String => Array(String))
+    # class Params
+    #   getter query = HTTP::Params.new({} of String => Array(String))
+    #   getter form = HTTP::Params.new({} of String => Array(String))
 
-      def initialize(@query, @form)
-      end
-    end
+    #   def initialize(@query, @form)
+    #   end
+    # end
   end
 
   module View::Form::Helper
     def text_field_tag(name = "", value = "", placeholder = "", attributes = {} of Symbol => String)
-      value = params.query[name]? || params.form[name]? || value
+      value = props[:query]?.try &.as?(HTTP::Params).try &.[name]? || props[:form]?.try &.as?(HTTP::Params).try &.[name]? || value
       attributes.merge!({:name => name, :id => (name.gsub /\./, "_"), :placeholder => placeholder, :type => "text", :value => value})
       input(attributes)
     end
 
     def hidden_field_tag(name = "", value = "", attributes = {} of Symbol => String)
-      value = params.query[name]? || params.form[name]? || value
+      value = props[:query]?.try &.as?(HTTP::Params).try &.[name]? || props[:form]?.try &.as?(HTTP::Params).try &.[name]? || value
       attributes.merge!({:name => name, :id => (name.gsub /\./, "_"), :type => "hidden", :value => value})
       input(attributes)
     end
 
-    def select_field_tag(name = "", value = "", data : Warp::Type = [] of Tuple(String, String), attributes = {} of Symbol => String)
+    def select_field_tag(name = "", value = "", data : T = [] of Tuple(String, String), attributes = {} of Symbol => String)
       data_array = data.try &.as?(Array(Tuple(String, String))) || [] of Tuple(String, String)
-      value = params.query[name]? || params.form[name]? || value
+      value = props[:query]?.try &.as?(HTTP::Params).try &.[name]? || props[:form]?.try &.as?(HTTP::Params).try &.[name]? || value
       attributes.merge!({:name => name, :id => (name.gsub /\./, "_")})
       select!(attributes) do
         data_array.each do |option_data|

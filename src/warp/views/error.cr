@@ -1,16 +1,16 @@
 module Warp::Web::View
   # View class
-  class Error < Warp::View
+  class Error(T) < Warp::View(T)
     # def initialize(@code = 500, @message : String | Nil = "")
     # end
     def render
       html do
         head do
-          title("Error #{outbox[:status_code]}")
+          title("Error #{props[:status_code]}")
         end
         body do
-          div outbox[:status_code]?
-          div outbox[:exception_message]?
+          div props[:status_code]?
+          div props[:exception_message]?
         end
       end
     end
