@@ -39,8 +39,8 @@ module Warp
           json({error: ex.message})
         else
           render Warp::Web::View::Error, {
-            :status_code => context.response.status_code,
-            :exception_message => ex.message
+            :status_code       => context.response.status_code,
+            :exception_message => ex.message,
           }
         end
         return
@@ -52,7 +52,7 @@ module Warp
         else
           # props[:status_code] = context.response.status_code
           render Warp::Web::View::Error, {
-            :status_code => context.response.status_code
+            :status_code => context.response.status_code,
           }
         end
       end
