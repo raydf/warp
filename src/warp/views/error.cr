@@ -1,8 +1,6 @@
 module Warp::Web::View
   # View class
   class Error(T) < Warp::View(T)
-    # def initialize(@code = 500, @message : String | Nil = "")
-    # end
     def render
       html do
         head do

@@ -81,7 +81,7 @@ module Warp
       @content << "</select>"
     end
 
-    def initialize(@props : Hash(Symbol, T))
+    def initialize(@props : Hash(Symbol, T), @content = String::Builder.new)
     end
 
     abstract def render
