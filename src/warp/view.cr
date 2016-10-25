@@ -96,9 +96,9 @@ module Warp
   end
 
   module View::Form::Helper
-    def text_field_tag(name = "", value = "", placeholder = "", attributes = {} of Symbol => String)
+    def text_field_tag(name = "", value = "", placeholder = "", attributes = {} of Symbol => String, type = "text")
       value = props[:query]?.try &.as?(HTTP::Params).try &.[name]? || props[:form]?.try &.as?(HTTP::Params).try &.[name]? || value
-      attributes.merge!({:name => name, :id => (name.gsub /\./, "_"), :placeholder => placeholder, :type => "text", :value => value})
+      attributes.merge!({:name => name, :id => (name.gsub /\./, "_"), :placeholder => placeholder, :type => type, :value => value})
       input(attributes)
     end
 

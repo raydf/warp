@@ -57,6 +57,8 @@ module Warp
         end
       end
 
+      context.session.delete(:flash)
+
       # elapsed = Time.now - time
       # elapsed_text = elapsed_text(elapsed)
       # pp "#{time} #{context.response.status_code} #{context.request.method} #{context.request.resource} - #{elapsed_text}\n"
