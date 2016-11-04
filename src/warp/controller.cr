@@ -75,14 +75,14 @@ module Warp
 
     abstract def routes
 
-    def get(&block)
+    macro get(&block)
       @params.query = HTTP::Params.parse(context.request.query || "")
-      root { status 200; yield } if get?
+      root { status 200; {{yield}} } if get?
     end
 
-    def post(&block)
+    macro post
       @params.form = HTTP::Params.parse(context.request.body || "")
-      root { status 200; yield } if post?
+      root { status 200; {{yield}} } if post?
     end
 
     class Params
