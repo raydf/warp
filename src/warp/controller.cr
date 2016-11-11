@@ -77,10 +77,12 @@ module Warp
 
     macro get(&block)
       @params.query = HTTP::Params.parse(context.request.query || "")
+      @params.form = nil
       root { status 200; {{yield}} } if get?
     end
 
     macro post
+      @params.query = nil
       @params.form = HTTP::Params.parse(context.request.body || "")
       root { status 200; {{yield}} } if post?
     end
