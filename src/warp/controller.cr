@@ -41,6 +41,7 @@ module Warp
           render Warp::Web::View::Error, {
             :status_code       => context.response.status_code,
             :exception_message => ex.message,
+            :exception_backtrace => ex.backtrace?,
           }
         end
         return
