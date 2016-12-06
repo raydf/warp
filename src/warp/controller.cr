@@ -4,6 +4,7 @@ module Warp
   abstract class Controller < Toro::Router
     property outbox = {} of Symbol => Warp::Type
     property params = Params.new
+    property body = ""
 
     def self.run(port = 8080)
       server = HTTP::Server.new(port, [
@@ -83,8 +84,9 @@ module Warp
     end
 
     macro post
+      @body = context.request.body.try &.gets_to_end || ""
       @params.query = HTTP::Params.parse("")
-      @params.form = HTTP::Params.parse(context.request.body || "")
+      @params.form = HTTP::Params.parse(@body || "")
       root { status 200; {{yield}} } if post?
     end
 
