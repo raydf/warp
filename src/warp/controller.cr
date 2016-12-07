@@ -89,11 +89,6 @@ module Warp
       root { status 200; {{yield}} } if post?
     end
 
-    macro put
-      @body = context.request.body.try &.gets_to_end || ""
-      root { status 200; {{yield}} } if put?
-    end
-
     class Params
       property query = HTTP::Params.new({} of String => Array(String))
       property form = HTTP::Params.new({} of String => Array(String))
