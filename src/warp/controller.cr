@@ -76,17 +76,17 @@ module Warp
 
     abstract def routes
 
-    macro get(&block)
-      @params.query = HTTP::Params.parse(context.request.query || "")
-      @params.form = HTTP::Params.parse("")
-      root { status 200; {{yield}} } if get?
-    end
-
-    macro post
-      @body = context.request.body.try &.gets_to_end || ""
-      @params.query = HTTP::Params.parse("")
-      @params.form = HTTP::Params.parse(@body || "")
-      root { status 200; {{yield}} } if post?
+    macro root
+      if @body.size <= 0
+        @body = context.request.body.try &.gets_to_end || ""
+      end
+      if (context.request.query.try &.size || 0) > 0
+        @params.query = HTTP::Params.parse(context.request.query || "")
+      end
+      if @body.size > 0
+        @params.form = HTTP::Params.parse(@body || "")         
+      end
+      default { {{yield}} } if root?
     end
 
     class Params
