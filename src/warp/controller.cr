@@ -20,7 +20,6 @@ module Warp
         exit
       end
 
-      puts "#{name} - Listening on port #{port}"
       server.listen
     end
 
@@ -88,6 +87,11 @@ module Warp
       @params.query = HTTP::Params.parse("")
       @params.form = HTTP::Params.parse(@body || "")
       root { status 200; {{yield}} } if post?
+    end
+
+    macro put
+      @body = context.request.body.try &.gets_to_end || ""
+      root { status 200; {{yield}} } if put?
     end
 
     class Params
