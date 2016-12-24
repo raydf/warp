@@ -1,5 +1,7 @@
 module Warp
-  class Handler < HTTP::Handler
+  class Handler 
+    include HTTP::Handler
+    
     def initialize(@controller : Warp::Controller.class)
     end
 
