@@ -108,7 +108,7 @@ module Warp
       input(attributes)
     end
 
-    def select_field_tag(name = "", value = "", data : T = [] of Tuple(String, String), attributes = {} of Symbol => String)
+    def select_field_tag(name = "", value = "", data : T = [] of Tuple(String, String), attributes = {} of Symbol => String) forall T
       data_array = data.try &.as?(Array(Tuple(String, String))) || [] of Tuple(String, String)
       value = props[:query]?.try &.as?(HTTP::Params).try &.[name]? || props[:form]?.try &.as?(HTTP::Params).try &.[name]? || value
       attributes.merge!({:name => name, :id => (name.gsub /\./, "_")})
