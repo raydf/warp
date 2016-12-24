@@ -14,7 +14,7 @@ module Warp::Validation
     return @validations, valid?
   end
 
-  def required(field = "", kind : T = String, &block)
+  def required(field = "", kind : T = String, &block)  forall T
     predicate = Predicate.new(@params_values, field, kind)
     yield predicate
     @validations.merge! predicate.validations
@@ -29,7 +29,7 @@ module Warp::Validation
     property valid = true
     @value = ""
 
-    def initialize(@params, @field = "", @field_name = "", @kind : T = String)
+    def initialize(@params, @field = "", @field_name = "", @kind : T = String) forall T
       validations[@field] = [] of String
       @value = params.try &.[field]?.try &.[0]?.try &.to_s || ""
     end
