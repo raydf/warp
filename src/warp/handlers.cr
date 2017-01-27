@@ -13,7 +13,7 @@ module Warp
   class StaticFileHandler < HTTP::StaticFileHandler
     def call(context)
       return call_next(context) if context.request.path.not_nil! == "/"
-      super
+      super 
     end
   end
 end
